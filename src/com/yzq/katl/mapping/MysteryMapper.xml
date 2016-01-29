@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzq.katl.dao.MysteryMapper">
+	<resultMap id="BaseResultMapResult" type="com.yzq.katl.model.Mystery">
+		<id property="id" column="ID"/>
+		<result property="categoryId" column="CategoryID"/>
+		<result property="title" column="Title"/>
+		<result property="description" column="Description"/>
+		<result property="seoId" column="SEOID"/>
+		<result property="logoUrl" column="LogoUrl"/>
+		<result property="clickTimes" column="ClickTimes"/>
+		<result property="contentId" column="ContentID"/>
+		<result property="isHot" column="IsHot"/>
+		<result property="isRecommend" column="IsRecommend"/>
+		<result property="isTop" column="IsTop"/>
+		<result property="status" column="Status"/>
+		<result property="sort" column="Sort"/>
+		<result property="isDeleted" column="IsDeleted"/>
+		<result property="createTime" column="CreateTime"/>
+		<result property="updateTime" column="UpdateTime"/>
+	</resultMap>
+	
+	<resultMap id="BaseResultExtendResult" type="com.yzq.katl.dto.MysteryDTO" extends="BaseResultMapResult">
+		<result property="htmlText" column="HtmlText"/>
+	</resultMap>
+	
+	<insert id="insertMystery">
+		INSERT INTO `mystery` (
+		`CategoryID`,`Title`,`Description`,`SEOID`,`LogoUrl`,`ClickTimes`,`ContentID`,`IsHot`,
+		`IsRecommend`,`IsTop`,`Status`,`Sort`,`IsDeleted`,`CreateTime`,`UpdateTime`
+		)
+		VALUES
+		(
+		#{dto.categoryId},#{dto.title},#{dto.description},#{dto.seoId},#{dto.logoUrl},#{dto.clickTimes},#{dto.contentId},#{dto.isHot},
+		#{dto.isRecommend},#{dto.isTop},#{dto.status},#{dto.sort},#{dto.isDeleted},#{dto.createTime},#{dto.updateTime}
+		);
+	</insert>
+	
+	<update id="updateMystery">
+		UPDATE `mystery`
+		SET `CategoryId` = #{dto.categoryId},
+		 `Title` = #{dto.title},
+		 `Description` = #{dto.description},
+		 `SEOID` = #{dto.seoId},
+		 `LogoUrl` = #{dto.logoUrl},
+		 `IsHot` = #{dto.isHot},
+		 `IsRecommend` = #{dto.isRecommend},
+		 `IsTop` = #{dto.isTop},
+		 `UpdateTime` = #{dto.updateTime}
+		WHERE
+			(`ID` = #{dto.id});
+	</update>
+	
+	<delete id="deleteMystery">
+	    <![CDATA[  
+	       delete from `mystery` where id in  
+	    ]]>  
+	    <foreach collection="ids" item = "id" open="(" separator="," close=")">
+	    	#{id}  
+	    </foreach>  
+	</delete>
+	
+	<select id="selectMysteryListTotalCount" resultType="int">
+		SELECT  count(*) FROM  `mystery` AS e
+		<where>
+			<if test="query != null and query != ''">
+				e.Title LIKE "%"#{query}"%";
+			</if>
+		</where>
+	</select>
+	<select id="selectMysteryList" resultMap="BaseResultExtendResult">
+		SELECT e.*,c.HtmlText FROM mystery AS e LEFT JOIN content AS c ON e.ContentID = c.ID 
+		<where>
+			<if test="query != null and query != ''">
+				e.Title LIKE "%"#{query}"%"
+			</if>
+		</where>
+		ORDER BY e.CreateTime DESC
+		LIMIT #{dgm.start},#{dgm.rows} 
+	</select>
+	
+</mapper>

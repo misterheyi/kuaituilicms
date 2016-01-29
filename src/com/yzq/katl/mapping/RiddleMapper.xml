@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzq.katl.dao.RiddleMapper">
+	<resultMap id="BaseResultMapResult" type="com.yzq.katl.model.Riddle">
+		<id property="id" column="ID"/>
+		<result property="question" column="Question"/>
+		<result property="answer" column="Answer"/>
+		<result property="clickTimes" column="ClickTimes"/>
+		<result property="status" column="Status"/>
+		<result property="sort" column="Sort"/>
+		<result property="isDeleted" column="IsDeleted"/>
+		<result property="createTime" column="CreateTime"/>
+		<result property="updateTime" column="UpdateTime"/>
+	</resultMap>
+	
+	<insert id="insertRiddle">
+		INSERT INTO `riddle` (
+			`ID`,`Question`,`Answer`,`ClickTimes`,`Status`,`Sort`,`IsDeleted`,`CreateTime`,`UpdateTime`
+		)
+		VALUES
+		(
+			#{dto.id},#{dto.question},#{dto.answer},#{dto.clickTimes},#{dto.status},#{dto.sort},#{dto.isDeleted},#{dto.createTime},#{dto.updateTime}
+		)
+	</insert>
+	
+	<update id="updateRiddle">
+		UPDATE `riddle`
+		SET
+		 `Question` = #{dto.question},
+		 `Answer` = #{dto.answer},
+		 `UpdateTime` = #{dto.updateTime}
+		WHERE
+			(`ID` = #{dto.id});
+	</update>
+	
+	<delete id="deleteRiddle">
+	    <![CDATA[  
+	       DELETE FROM `riddle` WHERE ID IN
+	    ]]>  
+	    <foreach collection="ids" item = "id" open="(" separator="," close=")">
+	    	#{id}  
+	    </foreach>  
+	</delete>
+	
+	<select id="selectRiddleListTotalCount" resultType="int">
+		SELECT  count(*) FROM  `riddle` AS r
+		<where>
+			<if test="query != null and query != ''">
+				r.Question LIKE "%"#{query}"%";
+			</if>
+		</where>
+	</select>
+	<select id="selectRiddleList" resultMap="BaseResultMapResult">
+		SELECT r.* FROM `riddle` AS r
+		<where>
+			<if test="query != null and query != ''">
+				r.Question LIKE "%"#{query}"%"
+			</if>
+		</where>
+		ORDER BY r.CreateTime DESC
+		LIMIT #{dgm.start},#{dgm.rows} 
+	</select>
+	
+</mapper>

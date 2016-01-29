@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzq.katl.dao.ContentMapper">
+	
+	<insert id="insertContent">
+	    <selectKey resultType="java.lang.Integer" order="AFTER" keyProperty="content.id">  
+          SELECT LAST_INSERT_ID() AS ID    
+  	    </selectKey>  
+		INSERT INTO `content` (`HtmlText`) VALUES (#{content.htmlText});
+	</insert>
+	
+	<update id="updateContent">
+		UPDATE `content` SET `HtmlText`=#{content.htmlText} WHERE (`ID`=#{content.id});
+	</update>
+	
+</mapper>

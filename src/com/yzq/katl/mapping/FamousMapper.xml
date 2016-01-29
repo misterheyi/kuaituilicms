@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yzq.katl.dao.FamousMapper">
+	<resultMap id="BaseResultMapResult" type="com.yzq.katl.model.Famous">
+		<id property="id" column="ID"/>
+		<result property="title" column="Title"/>
+		<result property="logoUrl" column="LogoUrl"/>
+		<result property="description" column="Description"/>
+		<result property="seoId" column="SEOID"/>
+		<result property="briefId" column="BriefID"/>
+		<result property="basicId" column="BasicID"/>
+		<result property="clickTimes" column="ClickTimes"/>
+		<result property="status" column="Status"/>
+		<result property="sort" column="Sort"/>
+		<result property="isDeleted" column="IsDeleted"/>
+		<result property="createTime" column="CreateTime"/>
+		<result property="updateTime" column="UpdateTime"/>
+	</resultMap>
+	
+	<resultMap id="BaseResultExtendResult" type="com.yzq.katl.dto.FamousDTO" extends="BaseResultMapResult">
+		<result property="brief" column="brief"/>
+		<result property="basic" column="basic"/>
+	</resultMap>
+	
+	<insert id="insertFamous">
+		INSERT INTO `famous` (
+			`Title`,`LogoUrl`,`Description`,`SEOID`,`BriefID`,`BasicID`,
+			`ClickTimes`,`Status`,`Sort`,`IsDeleted`,`CreateTime`,`UpdateTime`
+		)
+		VALUES
+			(#{dto.title},#{dto.logoUrl},#{dto.description},#{dto.seoId},
+				#{dto.briefId},#{dto.basicId},#{dto.clickTimes},#{dto.status},#{dto.sort},
+				#{dto.isDeleted},#{dto.createTime},#{dto.updateTime}
+			);
+	</insert>
+	
+	<update id="updateFamous">
+		UPDATE `famous`
+		SET
+		 `Title` = #{dto.title},
+		 `LogoUrl` = #{dto.logoUrl},
+		 `Description` = #{dto.description},
+		 `SEOID` = #{dto.seoId},
+		 `BriefID` = #{dto.briefId},
+		 `BasicID` = #{dto.basicId},
+		 `ClickTimes` = #{dto.clickTimes},
+		 `Status` = #{dto.status},
+		 `Sort` = #{dto.sort},
+		 `IsDeleted` = #{dto.isDeleted},
+		 `UpdateTime` = #{dto.updateTime}
+		WHERE
+			(`ID` = #{dto.id});
+	</update>
+	
+	<delete id="deleteFamous">
+	    <![CDATA[  
+	       DELETE FROM `famous` WHERE ID IN
+	    ]]>  
+	    <foreach collection="ids" item = "id" open="(" separator="," close=")">
+	    	#{id}  
+	    </foreach>  
+	</delete>
+	
+	<select id="selectFamousListTotalCount" resultType="int">
+		SELECT  count(*) FROM  `famous` AS f
+		<where>
+			<if test="query != null and query != ''">
+				f.Title LIKE "%"#{query}"%";
+			</if>
+		</where>
+	</select>
+	<select id="selectFamousList" resultMap="BaseResultExtendResult">
+		SELECT f.*,
+		(SELECT c1.HtmlText FROM content AS c1 WHERE c1.ID = f.BriefID) AS brief,
+		(SELECT c2.HtmlText FROM content AS c2 WHERE c2.ID = f.BasicID) AS basic
+		 FROM famous f
+		<where>
+			<if test="query != null and query != ''">
+				f.Title LIKE "%"#{query}"%"
+			</if>
+		</where>
+		ORDER BY f.CreateTime DESC
+		LIMIT #{dgm.start},#{dgm.rows} 
+	</select>
+	
+</mapper>
